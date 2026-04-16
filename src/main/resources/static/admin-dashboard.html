@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LearnHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/course.css">
+    <style>
+        .form-white-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .form-label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #1A202C;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #CBD5E0;
+            border-radius: 6px;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+        .form-hint {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1A202C;
+        }
+        .btn-outline {
+            border: 1px solid #CBD5E0;
+            background: #fff;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            color: #4A5568;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .btn-save-large {
+            width: 100%;
+            background: #2F855A;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .grouped-box {
+            border: 1px solid #CBD5E0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .custom-file-upload {
+            border: 1px solid #CBD5E0;
+            display: inline-block;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            width: 100%;
+            color: #A0AEC0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        
+        .question-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .option-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Table overrides for image 25 */
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+        .student-table th {
+            background: #E2E8F0;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #1A202C;
+            font-size: 14px;
+        }
+        .student-table td {
+            padding: 15px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 16px;
+            color: #1A202C;
+        }
+        .student-table tr:last-child td {
+            border-bottom: none;
+        }
+        .student-table td:first-child {
+            color: #3182CE;
+        }
+        
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .badge-completed { background: #C6F6D5; color: #276749; }
+        .badge-progress { background: #FEEBC8; color: #C05621; }
+        .badge-enrolled { background: #EDF2F7; color: #718096; }
+        
+        .chev-right {
+            color: #A0AEC0;
+            float: right;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .btn-remove {
+            background: none;
+            border: none;
+            color: #E53E3E;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            float: right;
+            line-height: 1;
+            padding: 0 5px;
+        }
+        .btn-remove:hover {
+            color: #C53030;
+        }
+    </style>
+</head>
+<body class="dashboard-container">
+    
+    <div class="topbar" id="mainTopbar">
+        <div class="topbar-brand">
+            🎓 LearnHub
+        </div>
+        <button class="btn-logout" onclick="window.location.href='index.html'">
+            ➜ Logout
+        </button>
+    </div>
+
+    <div class="viewer-topbar" id="subViewTopbar" style="display:none; justify-content: space-between;">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="back-btn" onclick="window.history.back()">&larr;</button>
+            <span id="subViewTitle">View Name</span>
+        </div>
+        <div id="subViewActions" style="display:none; gap:10px;">
+            <!-- Buttons dynamically populated -->
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="notification" class="notification">Action successful</div>
+
+        <!-- Dashboard Home Grid -->
+        <div id="homeView">
+            <div style="margin-bottom: 40px;">
+                <h1 style="font-size: 28px; margin-bottom: 5px; color:#1A202C;">Welcome, Admin</h1>
+                <p style="color: var(--text-muted); font-size: 16px;">Manage Your learning platform from here</p>
+            </div>
+
+            <div class="grid-cards" style="margin-bottom: 40px;">
+                <div class="dashboard-card" onclick="showTab('add-course', 'Add New Course')">
+                    <div class="card-icon" style="background:#C6F6D5; color:#2F855A;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <h3>Add Course</h3>
+                    <p>Create a new course with sections</p>
+                </div>
+                
+                <div class="dashboard-card" onclick="showTab('course-list', 'Course List')">
+                    <div class="card-icon" style="background:#C6F6D5; color:#2F855A;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    </div>
+                    <h3>Course List</h3>
+                    <p>View all created courses</p>
+                </div>
+                
+                <div class="dashboard-card" onclick="showTab('student-progress', 'Student Progress')">
+                    <div class="card-icon" style="background:#C6F6D5; color:#2F855A;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="30"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
+                    <h3>Student Progress</h3>
+                    <p>Track student learning progress</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course List Section (Image 24) -->
+        <div id="course-list" class="tab-content" style="display: none; max-width: 800px; margin: 0 auto;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <div class="search-wrapper">
+                    <input type="text" id="adminCourseSearch" class="search-bar" placeholder="Search" onkeyup="searchAdminCourses(event)">
+                    <div class="search-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="emptyCourseState" style="display:none; text-align: center; margin-top: 100px;">
+                <h2 style="font-size:24px; margin-bottom:10px;">No courses Available</h2>
+                <p style="color:var(--text-muted); font-size:18px; margin-bottom:30px;">Add your first course to get started.</p>
+                <button class="btn-primary" style="background:#1C7C6D; max-width: 400px;" onclick="showTab('add-course', 'Add New Course')">Add Course</button>
+            </div>
+            
+            <div id="courseListTableContainer"></div>
+        </div>
+
+        <!-- Course Details Viewer Section (Image 22) -->
+        <div id="course-details-view" class="tab-content" style="display: none; max-width: 900px; margin: 0 auto; background: #fff; padding:40px; border-radius: 8px; border:1px solid #CBD5E0;">
+            <h1 id="cdTitle" style="font-size: 28px; margin-bottom: 10px;">Software Testing</h1>
+            <p id="cdDesc" style="color:#4A5568; font-size: 15px; margin-bottom: 25px; line-height:1.5;">Description placeholder</p>
+            
+            <div style="display:flex; gap:30px; font-weight: 500; font-size:16px; margin-bottom:30px;">
+                <span id="cdTime"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px; margin-right:5px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 30h</span>
+                <span id="cdSecs">3 sections</span>
+                <span id="cdAsses">3 assessments questions</span>
+            </div>
+
+            <h3 style="font-size:22px; margin-bottom:20px;">Course Sections</h3>
+            <div id="cdSectionsList" style="margin-bottom:40px;"></div>
+
+            <h3 style="font-size:22px; margin-bottom:20px;">Assessment Questions</h3>
+            <div id="cdAssessmentsList"></div>
+        </div>
+
+        <!-- Add / Edit Course Section (Image 21 & 23) -->
+        <div id="add-course" class="tab-content" style="display: none; max-width: 800px; margin: 0 auto;">
+            <div class="form-white-card">
+                
+                <label class="form-label">Course Title</label>
+                <input type="text" id="courseName" class="form-input" placeholder="e.g. Web Development">
+
+                <label class="form-label" style="margin-top:20px;">Description</label>
+                <input type="text" id="courseDesc" class="form-input" placeholder="Course description...">
+                <span class="form-hint">Accepts alphabets and special characters: . , ' " : ;</span>
+
+                <label class="form-label">Duration(hours)</label>
+                <input type="number" id="courseDuration" class="form-input" placeholder="e.g. 40">
+
+                <!-- Sections -->
+                <div class="section-header">
+                    Sections
+                    <button class="btn-outline" onclick="addSectionUi()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Add Section
+                    </button>
+                </div>
+                
+                <div id="sectionsContainer">
+                    <div class="grouped-box">
+                        <label class="form-label">Section 1</label>
+                        <input type="text" class="form-input secNameUI" placeholder="Section title">
+                        
+                        <label class="form-label" style="margin-top:15px;">Upload PPT(optional)</label>
+                        <label class="custom-file-upload">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Choose PPT file
+                            <input type="file" class="secPPTUI">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Assessments -->
+                <div class="section-header">
+                    Assessment
+                    <button class="btn-outline" onclick="addQuestionUi()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Add Question
+                    </button>
+                </div>
+
+                <div id="questionsContainer">
+                    <div class="grouped-box qBoxWrapper">
+                        <label class="form-label">Question 1</label>
+                        <input type="text" class="form-input qTitleUI" placeholder="Enter question 1">
+                        
+                        <div class="question-grid">
+                            <div class="option-wrap">
+                                <input type="radio" name="q1ans" value="A">
+                                <input type="text" class="form-input qOptA" placeholder="Option 1" style="margin:0;">
+                            </div>
+                            <div class="option-wrap">
+                                <input type="radio" name="q1ans" value="B">
+                                <input type="text" class="form-input qOptB" placeholder="Option 2" style="margin:0;">
+                            </div>
+                            <div class="option-wrap">
+                                <input type="radio" name="q1ans" value="C">
+                                <input type="text" class="form-input qOptC" placeholder="Option 3" style="margin:0;">
+                            </div>
+                            <div class="option-wrap">
+                                <input type="radio" name="q1ans" value="D">
+                                <input type="text" class="form-input qOptD" placeholder="Option 4" style="margin:0;">
+                            </div>
+                        </div>
+                        <span class="form-hint" style="margin-top:10px;">Select the radio button next to the correct answer</span>
+                    </div>
+                </div>
+
+                <button class="btn-save-large" onclick="saveCourseUi()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Save Course
+                </button>
+            </div>
+        </div>
+
+        <!-- Student Progress Section (Image 25) -->
+        <div id="student-progress" class="tab-content" style="display: none; max-width: 1000px; margin: 0 auto; background: white;">
+            <p class="empty-state" id="emptyStudentState" style="display:none;">No data available.</p>
+            <table class="student-table" id="studentTable">
+                <thead>
+                    <tr>
+                        <th>STUDENT NAME</th>
+                        <th>COURSE</th>
+                        <th>COMPLETION %</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <!-- Javascript populates -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Individual Student Progress Viewer Section -->
+        <div id="student-details-view" class="tab-content" style="display: none; max-width: 800px; margin: 0 auto;">
+             <div style="border: 1px solid var(--border-color); border-radius: 8px; background: white; padding: 20px 0; box-shadow: var(--shadow-sm);">
+                <div style="padding: 0 20px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <h3 id="pgCourseName" style="font-size: 18px;">Software Testing</h3>
+                        <span id="pgPercent" style="color: #2B6CB0; font-weight:500;">100% Completed</span>
+                    </div>
+                    <div style="font-size:14px; color:#718096; margin-bottom:15px;" id="pgDates"></div>
+                    <div class="progress-track" style="margin-bottom: 20px;">
+                         <div class="progress-fill" id="pgBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid var(--border-color); padding: 15px 20px; display:flex; align-items:center; gap:10px;">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="none"><circle cx="12" cy="12" r="10"/><path stroke="white" stroke-width="2" fill="none" d="M8 12.5l3 3 5-6"/></svg>
+                     <span id="pgTask1" style="font-size:16px;">Software Testing</span>
+                </div>
+                <div style="border-top: 1px solid var(--border-color); padding: 15px 20px;">
+                     <div style="display:flex; align-items:center; gap:10px; cursor: pointer;" onclick="toggleAssessmentDetails()">
+                         <svg width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="none"><circle cx="12" cy="12" r="10"/><path stroke="white" stroke-width="2" fill="none" d="M8 12.5l3 3 5-6"/></svg>
+                         <span id="pgTask2" style="font-size:16px;">Assessment - <span id="pgAssesStatus" style="color:black;">Passed(92%)</span></span>
+                     </div>
+                     <div id="pgAssessmentDetails" style="display: none; padding-top: 20px;">
+                        <!-- JS populated detailed assessment view -->
+                     </div>
+                </div>
+             </div>
+        </div>
+
+    </div>
+
+    <!-- Custom Modal Overlay -->
+    <div id="customModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#808080; padding:40px; border-radius:12px; width:500px; text-align:center; color:white; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+            <h2 id="customModalBody" style="font-weight: 500; font-size:20px; line-height:1.5; color:#000;">
+                Are you sure you want to delete<br>"Software testing"?
+            </h2>
+            <div style="display:flex; justify-content:center; gap:30px; margin-top:40px;">
+                <button class="btn-primary" style="background:#E2E8F0; color:#2B6CB0; width:100px; font-weight:600; padding:10px; border:none; border-radius:6px;" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" style="background:#E2E8F0; color:#2B6CB0; width:100px; font-weight:600; padding:10px; border:none; border-radius:6px;" id="customModalConfirmBtn">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - LearnHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/course.css">
+</head>
+<body class="dashboard-container">
+    
+    <div class="topbar" id="mainTopbar">
+        <div class="topbar-brand">
+            🎓 LearnHub
+        </div>
+        <button class="btn-logout" onclick="window.location.href='index.html'">
+            ➜ Logout
+        </button>
+    </div>
+
+    <div class="viewer-topbar" id="subViewTopbar" style="display:none;">
+        <button class="back-btn" onclick="showHome()">&larr;</button>
+        <span id="subViewTitle">View Name</span>
+    </div>
+
+    <div class="main-content">
+        <!-- Dashboard Home Grid -->
+        <div id="homeView">
+            <div style="margin-bottom: 40px;">
+                <h1 id="welcomeUserText" style="font-size: 28px; margin-bottom: 5px;">Welcome, Student</h1>
+                <p style="color: var(--text-muted); font-size: 16px;">Continue your learning journey</p>
+            </div>
+
+            <div class="grid-cards" style="margin-bottom: 40px;">
+                <div class="dashboard-card" onclick="showTab('all-courses', 'All Courses')">
+                    <div class="card-icon" style="background:#C6F6D5;">📖</div>
+                    <h3>All Courses</h3>
+                    <p>Browse and enroll in courses</p>
+                </div>
+                
+                <div class="dashboard-card" onclick="showTab('enrolled-courses', 'Enrolled Courses')">
+                    <div class="card-icon" style="background:#BEE3F8; color:#2B6CB0;">📚</div>
+                    <h3>Enrolled Courses</h3>
+                    <p>Continue your learning</p>
+                </div>
+                
+                <div class="dashboard-card" onclick="showTab('completed-courses', 'Completed Courses')">
+                    <div class="card-icon" style="background:#FEFCBF; color:#B7791F;">✅</div>
+                    <h3>Completed Courses</h3>
+                    <p>View your achievements</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="all-courses" class="tab-content" style="display: none; max-width: 800px; margin: 0 auto;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <div class="search-wrapper">
+                    <input type="text" id="courseSearch" class="search-bar" placeholder="Search" onkeyup="searchCourses(event)">
+                    <div class="search-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                </div>
+            </div>
+            <div id="allCoursesList"></div>
+        </div>
+
+        <div id="enrolled-courses" class="tab-content" style="display: none; max-width: 800px; margin: 0 auto;">
+            <div id="enrolledCoursesList"></div>
+        </div>
+
+        <div id="completed-courses" class="tab-content" style="display: none; max-width: 800px; margin: 0 auto;">
+            <div id="completedCoursesList"></div>
+        </div>
+    </div>
+
+    <!-- Course Details Viewer Section (Image 1) -->
+    <div id="course-details-view" class="tab-content" style="display: none; max-width: 900px; margin: 0 auto; background: #fff; padding:50px; border-radius: 8px; border:1px solid #CBD5E0;">
+        <h1 id="cdTitle" style="font-size: 32px; margin-bottom: 15px;">Software Testing</h1>
+        <p id="cdDesc" style="color:#2D3748; font-size: 16px; margin-bottom: 30px; line-height:1.6;">Description placeholder</p>
+        
+        <div style="display:flex; gap:40px; font-size:20px; margin-bottom:40px; align-items:center;">
+            <span id="cdTime" style="display:flex; align-items:center; gap:8px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 30h</span>
+            <span id="cdSecs">3 sections</span>
+            <span id="cdAsses">Assessment</span>
+        </div>
+
+        <h3 style="font-size:26px; margin-bottom:20px; font-weight:700;">Course Sections</h3>
+        <div id="cdSectionsList" style="margin-bottom:40px;"></div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <button class="btn-primary" style="background: linear-gradient(to right, #2B6CB0, #48BB78); width:auto; padding: 15px 50px; font-size:18px; border-radius: 12px; font-weight:600;" id="enrollBtn" onclick="enrollCourse()">Enroll in this Course</button>
+        </div>
+    </div>
+
+    <script src="js/student.js"></script>
+</body>
+</html>

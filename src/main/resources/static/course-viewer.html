@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Viewer - LearnHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/course.css">
+</head>
+<body class="dashboard-container">
+    
+    <div class="viewer-topbar">
+        <button class="back-btn" onclick="window.history.back()">&larr;</button>
+        <span id="courseTitle">Loading Course...</span>
+    </div>
+
+    <!-- Section List View -->
+    <div id="sectionListView" class="section-list">
+        <div id="sectionContainer">
+            <!-- Populated via JS -->
+        </div>
+
+        <div id="assessmentSection" class="section-item locked" onclick="startAssessment()">
+            <div class="play-icon" style="border:none; width:50px; height:50px; display:flex; align-items:center; justify-content:center;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><circle cx="16" cy="18" r="4"></circle><path d="M16 16v2l1 1"></path></svg>
+            </div>
+            <div class="details">
+                <h4 style="font-size:18px;">Assessment</h4>
+                <p id="assessmentSub" style="margin-top:5px; color:#A0AEC0;">Complete all sections to unlock the assessment.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Section/PPT Viewer -->
+    <div id="pptPlayerView" style="display:none;">
+        <div class="ppt-viewer" style="padding:0; position:relative; overflow:hidden; border-radius: 12px; background: #E2E8F0;">
+            <embed id="pdfEmbed" src="" type="application/pdf" style="width:100%; height:600px; border:none;" />
+            <div style="position:absolute; bottom:20px; left:20px; z-index: 10;">
+                <span id="timerDisplay" style="background:#EBF8FF; color:#3182CE; padding:5px 10px; border-radius:20px; font-weight:bold; font-size:14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Required Time: 5:00</span>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
+             <button class="btn-primary" style="width: auto; background: var(--btn-gradient);" onclick="prevSlide()">Previous Section</button>
+             <button class="btn-primary" style="width: auto; background: var(--btn-danger);" onclick="exitPlayer()">Return to Sections</button>
+             <button class="btn-primary" style="width: auto; background: var(--btn-gradient);" onclick="nextSlide(true)">Next Section</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8081/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('courseId');
+        const enrollmentId = urlParams.get('enrollmentId');
+
+        let courseData = null;
+        let progressData = [];
+        let currentActiveSectionIdx = 0; 
+        
+        let slideInterval;
+        let timeLeft = 0;
+        let playingIdx = 0;
+        let currentSectionId = null;
+
+        async function init() {
+            if (!courseId || !enrollmentId) {
+                alert("Missing parameters");
+                return;
+            }
+            
+            try {
+                // Fetch course details
+                const cRes = await fetch(`${API_BASE}/courses/${courseId}`);
+                courseData = await cRes.json();
+                document.getElementById('courseTitle').textContent = courseData.name;
+                
+                // Fetch progress
+                const pRes = await fetch(`${API_BASE}/enrollments/${enrollmentId}/progress`);
+                progressData = await pRes.json();
+                
+                // Sort sections by order
+                if (courseData.sections) {
+                    courseData.sections.sort((a,b) => a.orderIndex - b.orderIndex);
+                }
+
+                calculateActiveSection();
+                renderSections();
+            } catch(e) {
+                console.error("Init failed", e);
+            }
+        }
+
+        function calculateActiveSection() {
+            currentActiveSectionIdx = 0;
+            if (!courseData.sections) return;
+            for (let i=0; i<courseData.sections.length; i++) {
+                const sec = courseData.sections[i];
+                const sp = progressData.find(p => p.section.id === sec.id);
+                if (sp && sp.completed) {
+                    currentActiveSectionIdx = i + 1;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        function renderSections() {
+            const container = document.getElementById('sectionContainer');
+            container.innerHTML = '';
+            
+            if (!courseData.sections || courseData.sections.length === 0) return;
+
+            let allUnlocked = true;
+
+            courseData.sections.forEach((sec, idx) => {
+                const isLocked = idx > currentActiveSectionIdx;
+                if(isLocked) allUnlocked = false;
+
+                const div = document.createElement('div');
+                div.className = `section-item ${isLocked ? 'locked' : ''}`;
+                div.onclick = () => !isLocked && playSection(idx);
+
+                div.innerHTML = `
+                    <div class="play-icon" style="${isLocked ? 'color:#CBD5E0; border-color:#CBD5E0;' : 'color:#2D3748;'}">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                    </div>
+                    <div class="details">
+                        <h4 style="font-size:18px;">${idx === 0 ? sec.name : 'Section ' + (idx + 1) + ' : ' + sec.name}</h4>
+                        <p style="margin-top:5px; color:#718096; display:flex; align-items:center; gap:8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            ${sec.pptUrl || 'Software Testing.ppt'}
+                        </p>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            const assessment = document.getElementById('assessmentSection');
+            if (currentActiveSectionIdx >= courseData.sections.length) {
+                assessment.classList.remove('locked');
+                document.getElementById('assessmentSub').textContent = 'Ready to take assessment.';
+                document.getElementById('assessmentSub').style.color = '#38A169';
+            }
+        }
+
+        function playSection(idx) {
+            playingIdx = idx;
+            const sec = courseData.sections[idx];
+            currentSectionId = sec.id;
+            
+            document.getElementById('sectionListView').style.display = 'none';
+            document.getElementById('pptPlayerView').style.display = 'block';
+            
+            document.getElementById('courseTitle').textContent = sec.name;
+            
+            let fileUrl = sec.pptUrl;
+            if (fileUrl && !fileUrl.startsWith('http') && !fileUrl.startsWith('/api')) {
+                // If it's old hardcoded fallback text, construct a placeholder URL just so it doesn't break
+            }
+            document.getElementById('pdfEmbed').src = fileUrl || '';
+            
+            const sp = progressData.find(p => p.section.id === sec.id);
+            if (!sp || !sp.completed) {
+                let cDur = courseData.durationMins || 0;
+                let cSecs = courseData.sections ? courseData.sections.length : 1;
+                if (cDur > 0) {
+                    timeLeft = Math.max(1, Math.floor((cDur / cSecs) * 60)); 
+                } else {
+                    timeLeft = (sec.durationMins || 1) * 60; 
+                }
+                updateTimerUI();
+                slideInterval = setInterval(async () => {
+                    timeLeft--;
+                    updateTimerUI();
+                    if (timeLeft <= 0) {
+                        clearInterval(slideInterval);
+                        await completeCurrentSection();
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('timerDisplay').textContent = "Already Completed";
+                document.getElementById('timerDisplay').style.background = "#E2E8F0";
+                document.getElementById('timerDisplay').style.color = "#A0AEC0";
+            }
+        }
+        
+        async function completeCurrentSection() {
+            document.getElementById('timerDisplay').textContent = "Section Complete! You may proceed.";
+            document.getElementById('timerDisplay').style.background = "#C6F6D5";
+            document.getElementById('timerDisplay').style.color = "#2F855A";
+            
+            try {
+                await fetch(`${API_BASE}/enrollments/${enrollmentId}/sections/${currentSectionId}/complete`, {
+                    method: 'POST'
+                });
+                // refresh progress
+                const pRes = await fetch(`${API_BASE}/enrollments/${enrollmentId}/progress`);
+                progressData = await pRes.json();
+                
+                if(currentActiveSectionIdx === playingIdx) { currentActiveSectionIdx++; }
+            } catch(e) { console.error(e); }
+        }
+
+        function updateTimerUI() {
+            if(timeLeft > 0) {
+                document.getElementById('timerDisplay').textContent = `Required Time Left: ${timeLeft}s`;
+            }
+        }
+
+        function prevSlide() {
+            if (playingIdx > 0) {
+                clearInterval(slideInterval);
+                playSection(playingIdx - 1);
+            }
+        }
+        
+        function nextSlide(manualClick) { 
+            if (playingIdx < (courseData.sections ? courseData.sections.length - 1 : 0)) {
+                // Determine if we can move next
+                const isLocked = (playingIdx + 1) > currentActiveSectionIdx;
+                if (!isLocked) {
+                    clearInterval(slideInterval);
+                    playSection(playingIdx + 1);
+                } else {
+                    alert("Complete current section before proceeding to next.");
+                }
+            } else {
+                alert("This is the last section. You can exit and proceed to Assessment.");
+            }
+        }
+
+        function exitPlayer() {
+            clearInterval(slideInterval);
+            document.getElementById('courseTitle').textContent = courseData.name;
+            document.getElementById('sectionListView').style.display = 'block';
+            document.getElementById('pptPlayerView').style.display = 'none';
+            calculateActiveSection();
+            renderSections();
+        }
+
+        function startAssessment() {
+            if (currentActiveSectionIdx < courseData.sections.length) {
+                alert("Complete all sections first.");
+                return;
+            }
+            window.location.href = `assessment.html?courseId=${courseId}&enrollmentId=${enrollmentId}`;
+        }
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - LearnHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .auth-card {
+            max-width: 550px;
+            padding: 40px;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .input-group {
+            flex: 1;
+        }
+        /* Mobile Input Split Styling */
+        .mobile-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+        .mobile-input-wrapper select {
+            width: 100px;
+            appearance: none;
+            background: #fff url('data:image/svg+xml;utf8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 12px center;
+        }
+        .mobile-input-wrapper input {
+            flex: 1;
+        }
+        /* Password Eye Icon Wrapper */
+        .password-wrapper {
+            position: relative;
+        }
+        .password-wrapper input {
+            padding-right: 40px;
+        }
+        .password-wrapper .eye-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #4A5568;
+        }
+        /* Overrides */
+        .input-group input, .input-group select {
+            background: #fff;
+            border-radius: 20px;
+            padding: 12px 16px;
+        }
+        .btn-gradient {
+            background: linear-gradient(to right, #2B6CB0, #48BB78);
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+        .auth-icon-square {
+            background: #C6F6D5;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #000;
+        }
+        .auth-icon-square svg {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            
+            <div class="auth-icon-square">
+                <!-- Checklist icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+            </div>
+            
+            <h2>Student Registration</h2>
+            <p class="subtitle">Creating your learning account</p>
+            
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>First Name</label>
+                        <input type="text" id="fn" placeholder="Priyanka" pattern="[A-Za-z]{2,32}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Last Name</label>
+                        <input type="text" id="ln" placeholder="Raju" pattern="[A-Za-z]{2,32}" required>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="email@example.com" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Mobile Number</label>
+                    <div class="mobile-input-wrapper">
+                        <select id="countryCode">
+                            <option value="+91">+91 IN</option>
+                            <option value="+1">+1 US</option>
+                        </select>
+                        <input type="text" id="mobile" placeholder="Phone Number" required>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="pwd" placeholder="Create password" required>
+                        <div class="eye-icon" onclick="togglePassword('pwd')">
+                            <!-- Eye icon svg -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="cpwd" placeholder="Confirm Password" required>
+                        <div class="eye-icon" onclick="togglePassword('cpwd')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary btn-gradient">Create Account</button>
+            </form>
+            
+            <div class="auth-card-footer" style="text-align: center; margin-top: 15px;">
+                <a href="student-login.html" class="back-link" style="margin-top: 0;">&larr; Back to Login</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+async function togglePassword(id) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const pwd = document.getElementById('pwd').value;
+    const cpwd = document.getElementById('cpwd').value;
+
+    if (pwd !== cpwd) {
+        alert("Passwords do not match!");
+        return;
+    }
+
+    const studentData = {
+        firstName: document.getElementById('fn').value,
+        lastName: document.getElementById('ln').value,
+        email: document.getElementById('email').value,
+        mobile: document.getElementById('mobile').value,
+        password: pwd
+    };
+
+    const res = await fetch('http://localhost:8081/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentData)
+    });
+
+    if (!res.ok) {
+        const err = await res.json();
+        alert("Signup failed: " + (err.message || "Error"));
+        return;
+    }
+
+    alert("Account created successfully!");
+    window.location.href = 'student-login.html';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - LearnHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .auth-card {
+            max-width: 400px;
+            padding: 40px;
+        }
+        .auth-icon-square {
+            background: #9AE6B4;
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #000;
+        }
+        .auth-icon-square svg {
+            width: 40px;
+            height: 40px;
+            color: #000;
+        }
+        .input-group input {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .btn-gradient {
+            background: linear-gradient(to right, #2B6CB0, #48BB78);
+            border-radius: 15px;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            
+            <div class="auth-icon-square">
+                <!-- User with Checkmark Icon -->
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    <!-- Checkmark Badge on top right -->
+                    <circle cx="18" cy="18" r="5" fill="#000"/>
+                    <path d="M16 18l1.5 1.5 2.5-3" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <h2>Admin Login</h2>
+            <p class="subtitle" style="margin-bottom:30px;">Enter your admin credentials</p>
+            
+            <form id="adminLoginForm">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter your Username" required>
+                </div>
+                <div class="input-group" style="margin-bottom:20px;">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                
+                <!-- Explicitly EXCLUDING the Forgot Password? link as per textual USER requirements -->
+                
+                <button type="submit" class="btn-primary btn-gradient">Login</button>
+            </form>
+            
+            <div class="auth-card-footer" style="margin-top: 25px;">
+                <a href="index.html" class="back-link">&larr; Back to Welcome</a>
+            </div>
+        </div>
+    </div>
+    
+   <script>
+document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const res = await fetch('http://localhost:8081/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+
+    if (!res.ok) {
+        alert("Invalid Admin Credentials");
+        return;
+    }
+
+    const data = await res.json();
+
+    if (data.role !== 'ADMIN') {
+        alert("Not an admin");
+        return;
+    }
+
+    window.location.href = 'admin-dashboard.html';
+});
+</script>
+</body>
+</html>
