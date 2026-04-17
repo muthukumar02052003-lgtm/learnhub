@@ -78,13 +78,17 @@
     </div>
     
    <script>
+const API_URL = window.location.port === '5500'
+    ? 'http://localhost:8081/api'  // Local development with Live Server
+    : '/api';  // Production (same server)
+
 document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    const res = await fetch('http://localhost:8081/api/auth/login', {
+    const res = await fetch(API_URL + '/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

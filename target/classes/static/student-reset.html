@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - LearnHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .btn-center {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .btn-save {
+            background: #68D391; /* Light green to match the image exactly */
+            color: black;
+            border: 1px solid #48BB78;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card" style="padding-bottom: 50px;">
+            <h2 style="margin-bottom: 30px;">Reset Password</h2>
+            
+            <form id="resetForm">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Create Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                
+                <div class="btn-center">
+                    <button type="submit" class="btn-save">Save</button>
+                </div>
+            </form>
+            
+            <div class="auth-card-footer" style="margin-top: 20px;">
+                 <a href="student-login.html" class="back-link">&larr; Back to Login</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('resetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const pwd = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (pwd !== confirm) {
+                alert("Passwords do not match!");
+                return;
+            }
+            alert("Password changed successfully");
+            window.location.href = 'student-login.html';
+        });
+    </script>
+</body>
+</html>

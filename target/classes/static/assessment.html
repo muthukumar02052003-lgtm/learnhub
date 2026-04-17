@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment - LearnHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/course.css">
+    <style>
+        .assessment-intro-card {
+            background: white;
+            border-radius: 8px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #E2E8F0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .assessment-intro-card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .assessment-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+        .assessment-pass-req {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        .start-btn {
+            background: linear-gradient(to right, #2C5282, #48BB78);
+            color: white;
+            border: 1px solid #48BB78;
+            padding: 12px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            width: auto;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .assessment-footer-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Result Specific Styles */
+        .result-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #000;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .result-score {
+            font-size: 20px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .text-green { color: #38A169 !important; }
+        .text-red { color: #E53E3E !important; }
+        
+        .badge-info {
+            background: #E2F0EA;
+            color: #000;
+            padding: 10px 30px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .badge-warning {
+            background: #FCE788;
+            color: #000;
+            padding: 10px 30px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        
+        .btn-blue {
+            background: #4C51BF;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            width: auto;
+        }
+        .btn-blue:hover { background: #434190; }
+        
+        .btn-green-solid {
+            background: #38A169;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: 1px solid #2F855A;
+            font-size: 16px;
+            cursor: pointer;
+            width: auto;
+        }
+    </style>
+</head>
+<body class="dashboard-container">
+    
+    <div class="viewer-topbar">
+        <button class="back-btn" onclick="goBack()">&larr;</button>
+        <span id="topbarTitle">Assessment</span>
+    </div>
+
+    <div class="main-content" style="max-width: 800px; margin-top: 50px;">
+        
+        <!-- Start Screen -->
+        <div id="startScreen" class="assessment-intro-card">
+            <h2>Software Testing - Assessment</h2>
+            
+            <div class="assessment-stats">
+                <span>10 Questions</span>
+                <span>100 Marks Total</span>
+            </div>
+            
+            <p class="assessment-pass-req">Each question carries 10 marks. Pass:60%</p>
+            
+            <button class="start-btn" onclick="startAssessment()">Start Assessment</button>
+            
+            <p class="assessment-footer-text">You can retake the assessment up to 3 times only.</p>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quizScreen" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Question <span id="qNum">1</span>/<span id="qTotal">1</span></h2>
+                <div class="timer-box" id="timer">10:00</div>
+            </div>
+
+            <div class="question-box">
+                <h3 id="questionText">Question goes here?</h3>
+                
+                <div id="optionsContainer">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <button class="btn-primary" style="width: auto; background: var(--btn-danger); margin-right: 10px;" onclick="submitAssessment(false)">Submit Early</button>
+                <button class="btn-primary" style="width: auto;" id="nextBtn" onclick="nextQuestion()">Next Question &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="assessment-intro-card" style="display: none; padding: 60px 40px;">
+            <div id="resultIconWrapper"></div>
+            <h2 id="resultTitle" style="font-size: 28px; margin-bottom: 20px;">Result</h2>
+            
+            <div class="result-score">Your Score: <span id="scoreVal">0%</span></div>
+            
+            <p id="resultSubtext" style="margin-bottom: 20px; font-size: 18px;"></p>
+            
+            <div id="resultBadgeWrapper" style="display: none;"></div>
+            
+            <div id="resultActions" style="margin-top: 10px;">
+                <!-- Buttons injected dynamically -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_BASE = window.location.port === '5500'
+            ? 'http://localhost:8081/api'  // Local development with Live Server
+            : '/api';  // Production (same server)
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('courseId');
+        const enrollmentId = urlParams.get('enrollmentId');
+        let studentId = localStorage.getItem('userId');
+
+        let courseData = null;
+        let mockQuestions = [];
+        let currentQ = 0;
+        let userAnswers = {};
+        let timeLeft = 600;
+        let timerInterval;
+        let totalAttemptsAllowed = 3;
+        let currentAttempt = 0;
+
+        async function init() {
+            if (!courseId || !enrollmentId) return;
+            try {
+                const cRes = await fetch(`${API_BASE}/courses/${courseId}`);
+                courseData = await cRes.json();
+                mockQuestions = courseData.questions || [];
+                
+                const aRes = await fetch(`${API_BASE}/assessments/attempts/${enrollmentId}`);
+                const attempts = await aRes.json();
+                currentAttempt = attempts.length;
+                
+                document.querySelector('.assessment-intro-card h2').textContent = courseData.name + ' - Assessment';
+                document.querySelector('.assessment-stats').innerHTML = `<span>${mockQuestions.length} Questions</span><span>100 Marks Total</span>`;
+                
+            } catch(e) { console.error(e); }
+        }
+
+        function goBack() {
+             window.history.back();
+        }
+
+        function startAssessment() {
+            if (currentAttempt >= totalAttemptsAllowed) {
+                alert("Maximum attempts reached.");
+                return;
+            }
+            if (mockQuestions.length === 0) {
+                alert("No questions found for this course.");
+                return;
+            }
+            // we will increase attempt immediately upon start in local var, real attempt created on submit
+            currentAttempt++;
+            document.getElementById('topbarTitle').textContent = 'Assessment';
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            currentQ = 0;
+            userAnswers = {};
+            timeLeft = 600; 
+            loadQuestion();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('timer').textContent = `${m}:${s < 10 ? '0'+s : s}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitAssessment(true);
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = mockQuestions[currentQ];
+            document.getElementById('qNum').textContent = currentQ + 1;
+            document.getElementById('qTotal').textContent = mockQuestions.length;
+            document.getElementById('questionText').textContent = q.questionText;
+            
+            const optsContainer = document.getElementById('optionsContainer');
+            optsContainer.innerHTML = '';
+            
+            ['A', 'B', 'C', 'D'].forEach(key => {
+                const optText = q['option' + key];
+                if (!optText) return;
+                const btn = document.createElement('button');
+                btn.className = `option-btn ${userAnswers[currentQ] === key ? 'selected' : ''}`;
+                btn.textContent = `${key}. ${optText}`;
+                btn.onclick = () => selectOption(key, btn);
+                optsContainer.appendChild(btn);
+            });
+
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQ === mockQuestions.length - 1) {
+                nextBtn.textContent = 'Submit Assessment ✓';
+                nextBtn.style.background = 'var(--btn-green)';
+            } else {
+                nextBtn.innerHTML = 'Next Question &rarr;';
+                nextBtn.style.background = 'var(--btn-gradient)';
+            }
+        }
+
+        function selectOption(key, btnElement) {
+            userAnswers[currentQ] = key;
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btnElement.classList.add('selected');
+        }
+
+        function nextQuestion() {
+            if (currentQ < mockQuestions.length - 1) {
+                currentQ++;
+                loadQuestion();
+            } else {
+                submitAssessment(false);
+            }
+        }
+
+        async function submitAssessment(isTimeout) {
+            clearInterval(timerInterval);
+            
+            try {
+                const res = await fetch(`${API_BASE}/assessments/submit`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        studentId: studentId,
+                        courseId: courseId,
+                        answers: userAnswers
+                    })
+                });
+                const result = await res.json();
+
+                document.getElementById('quizScreen').style.display = 'none';
+                document.getElementById('resultScreen').style.display = 'block';
+                document.getElementById('topbarTitle').textContent = 'Assessment Result';
+                
+                renderResult(result.scorePercentage, result.passed);
+            } catch(e) {
+                 alert("Failed to submit assessment.");
+            }
+        }
+
+        function renderResult(score, passed) {
+            const resultIconWrapper = document.getElementById('resultIconWrapper');
+            const resultTitle = document.getElementById('resultTitle');
+            const scoreVal = document.getElementById('scoreVal');
+            const resultSubtext = document.getElementById('resultSubtext');
+            const resultBadgeWrapper = document.getElementById('resultBadgeWrapper');
+            const resultActions = document.getElementById('resultActions');
+
+            resultBadgeWrapper.style.display = 'none';
+            resultBadgeWrapper.innerHTML = '';
+            resultActions.innerHTML = '';
+
+            scoreVal.textContent = `${score}%`;
+
+            if (passed) {
+                resultIconWrapper.innerHTML = '';
+                resultTitle.textContent = 'Congratulations!';
+                scoreVal.className = 'text-green';
+                resultSubtext.textContent = 'Course completed successfully';
+                
+                resultActions.innerHTML = `<button class="btn-green-solid" onclick="window.location.href='student-dashboard.html'">View Completed Courses</button>`;
+            } else {
+                scoreVal.className = 'text-red';
+                let attemptsLeft = totalAttemptsAllowed - currentAttempt;
+
+                if (attemptsLeft > 0) {
+                    resultIconWrapper.innerHTML = `
+                        <div class="result-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </div>
+                    `;
+                    resultTitle.textContent = 'Try Again';
+                    resultSubtext.textContent = 'You need 60% to pass. You can retake the assessment.';
+                    
+                    resultBadgeWrapper.style.display = 'block';
+                    if (attemptsLeft === 1) {
+                         resultBadgeWrapper.innerHTML = `<div class="badge-warning">This is your last attempt.</div>`;
+                    } else {
+                         resultBadgeWrapper.innerHTML = `<div class="badge-info">Attempts Left : ${attemptsLeft} out of ${totalAttemptsAllowed}</div>`;
+                    }
+                    
+                    resultActions.innerHTML = `<button class="btn-blue" onclick="startAssessment()">Retake Assessment</button>`;
+                } else {
+                    resultIconWrapper.innerHTML = `
+                        <div class="result-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </div>
+                    `;
+                    resultTitle.textContent = 'Maximum Attempts Reached';
+                    resultSubtext.innerHTML = 'You have reached the maximum limit of 3 attempts.<br>Retake option is no longer available.';
+                }
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>

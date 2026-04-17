@@ -1,6 +1,10 @@
 // admin.js - Handles Admin Dashboard logic matching the new UI designs (Images 16-25)
 
-const API_BASE = 'http://localhost:8081/api';
+// Determine API base URL dynamically
+const API_BASE = window.location.port === '5500' 
+    ? 'http://localhost:8081/api'  // Local development with Live Server
+    : '/api';  // Production (same server)
+
 let courses = [];
 let pendingSections = [{id: 1}];
 let pendingQuestions = [{id: 1}];
@@ -235,7 +239,7 @@ async function saveCourseUi() {
                 });
                 if (uploadRes.ok) {
                     let data = await uploadRes.json();
-                    fileUrl = `http://localhost:8081${data.url}`; // construct full url
+                    fileUrl = `${window.location.origin}${data.url}`; // construct full url
                 } else {
                     console.error("Upload failed");
                 }

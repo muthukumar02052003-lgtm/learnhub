@@ -1,5 +1,8 @@
 // student.js - Handles Student Dashboard & Course Viewer logic
-const API_BASE = 'http://localhost:8081/api';
+// Determine API base URL dynamically
+const API_BASE = window.location.port === '5500' 
+    ? 'http://localhost:8081/api'  // Local development with Live Server
+    : '/api';  // Production (same server)
 let currentStudentId = localStorage.getItem('userId');
 
 let allCourses = [];

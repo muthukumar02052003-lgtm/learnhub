@@ -147,6 +147,10 @@
     </div>
     
     <script>
+const API_URL = window.location.port === '5500'
+    ? 'http://localhost:8081/api'  // Local development with Live Server
+    : '/api';  // Production (same server)
+
 async function togglePassword(id) {
     const el = document.getElementById(id);
     el.type = el.type === 'password' ? 'text' : 'password';
@@ -171,7 +175,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         password: pwd
     };
 
-    const res = await fetch('http://localhost:8081/api/auth/register', {
+    const res = await fetch(API_URL + '/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(studentData)
